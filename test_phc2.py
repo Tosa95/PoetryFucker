@@ -1,6 +1,8 @@
 # coding=utf-8
 import json
 
+import time
+
 from db_facade import DBFacade
 from language.language_identifier import FrequencyLanguageIdentifier, load_dictionary, DictionaryLanguageIdentifier
 from language.syllables import Syllabler
@@ -21,10 +23,14 @@ dictionary = load_dictionary({"english":"data/english_words.json",
 
 li = DictionaryLanguageIdentifier(dictionary)
 
-dbf = DBFacade("prova.sqldb")
+dbf = DBFacade("data/phtitles.sqldb")
 
 phc = PHCrawler(li, dbf, Syllabler())
 
 phc.start("https://it.pornhub.com")
 
-#print dbf.has_ph_title(u"TUSHY Studentessa del college seduce l'amico del papà con dei toy anali")
+try:
+    while True:
+        time.sleep(1)
+except Exception:
+    phc.abort()

@@ -3,11 +3,14 @@ from operator import attrgetter
 
 import operator
 
+import sqlite3
+
 from db_facade import DBFacade
 from language.language_identifier import preprocess_text
+from language.rhymer import Rhymer
 from language.syllables import Syllabler
 
-phrase = u"In bocca al lupo!"
+phrase = u"Buon appetito!"
 
 phrase2 = preprocess_text(phrase)
 
@@ -19,7 +22,8 @@ ls = Syllabler().syllables(rhyme_with).split('-')[-1]
 
 titles = dbf.get_titles_by_last_syllable(ls, 'italian')
 
-titles = [t for t in titles if t.last_word != rhyme_with and not t.last_word in rhyme_with and not rhyme_with in t.last_word]
+titles = [t for t in titles if t["LAST_WORD"] != rhyme_with and not t["LAST_WORD"] in rhyme_with
+          and not rhyme_with in t["LAST_WORD"]]
 #titles = [t for t in titles if t.last_word != rhyme_with]
 
 def wnear (w1,w2):
@@ -41,7 +45,7 @@ def wnear (w1,w2):
 
     return near
 
-titles = [(t,wnear(t.last_word,rhyme_with)) for t in titles]
+titles = [(t,wnear(t["LAST_WORD"],rhyme_with)) for t in titles]
 
 titles = sorted(titles, key=operator.itemgetter(1),reverse=True)
 
@@ -49,6 +53,11 @@ titles = sorted(titles, key=operator.itemgetter(1),reverse=True)
 print phrase
 print '\n'
 
-for i in range(min([10,len(titles)])):
+for i in range(min([10, len(titles)])):
 
-    print titles[i][0].title + ": " + titles[i][0].link
+    print titles[i][0]["TITLE"] + ": " + titles[i][0]["LINK"]
+
+rm = Rhymer(dbf,Syllabler())
+
+print rm.rhyme(phrase)[0]
+

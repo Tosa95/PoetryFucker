@@ -184,39 +184,6 @@ class DBFacade:
         self._exec_multiple(query, titles_param)
 
 
-
-
-    def add_titles_full(self,titles):
-
-        conn = sqlite3.connect(self._dbaddr)
-
-        try:
-            cursor = conn.cursor()
-
-            for title_data in titles:
-
-                title = title_data.title
-
-                try:
-                    cursor.execute(r"""INSERT INTO PH_TITLES (TITLE,LINK,VIEWS,LIKES,LANGUAGE,LAST_WORD,LAST_SYLLABLE)
-                                                          VALUES (?,?,?,?,?,?,?);""", (
-                    title, title_data.link, title_data.views, title_data.likes, title_data.language,
-                    title_data.last_word, title_data.last_syllable))
-
-                except IntegrityError:
-
-                    pass
-
-            conn.commit()
-
-        except Exception as ex:
-
-            print ex
-
-        finally:
-
-            conn.close()
-
     def  count_titles(self):
 
         conn = sqlite3.connect(self._dbaddr)
@@ -250,20 +217,8 @@ class DBFacade:
 
     def get_titles_by_last_syllable(self,syllable,lang):
 
-        conn = sqlite3.connect(self._dbaddr)
+        query = r"""SELECT * 
+                    FROM PH_TITLES WHERE LAST_SYLLABLE=? AND LANGUAGE=?"""
 
-        query = r"""SELECT LINK,TITLE,LAST_WORD,LAST_SYLLABLE,VIEWS,LIKES,LANGUAGE FROM PH_TITLES WHERE LAST_SYLLABLE=? AND LANGUAGE=?"""
-
-        # query = """SELECT WORD FROM SYLLABLED_WORDS"""
-
-        cursor = conn.cursor()
-
-        cursor.execute(query,(syllable,lang))
-
-        rows = cursor.fetchall()
-
-        rows = [Title(link=link,title=title,last_word=last_word,last_syllable=last_syllable,views=views,likes=likes,language=language) for
-                (link,title,last_word,last_syllable,views,likes,language) in rows]
-
-        return rows
+        return self._exec_single(query, (syllable, lang))
 

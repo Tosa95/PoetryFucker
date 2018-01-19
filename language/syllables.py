@@ -1,3 +1,4 @@
+# coding=utf-8
 import re
 
 VOWELS = "aeiou"
@@ -21,6 +22,15 @@ class Syllabler:
     def __init__(self):
 
         pass
+
+    def preprocess_text(self, title):
+
+        chars_to_remove = u"!?$().,:;-_\/&%£"
+
+        for char_to_remove in chars_to_remove:
+            title = title.replace(char_to_remove, '')
+
+        return title.lower()
 
     def is_vocal(self,character):
 
